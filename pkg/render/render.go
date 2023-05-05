@@ -6,7 +6,6 @@ import (
 	"text/template"
 )
 
-
 func RenderTemplate(w http.ResponseWriter, html string) {
 	parsedTemplate, _ := template.ParseFiles("./templates/" + html)
 	err := parsedTemplate.Execute(w, nil)

@@ -2,15 +2,15 @@ package render
 
 import (
 	"bytes"
+	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
-	"text/template"
 )
 
 func RenderTemplate(w http.ResponseWriter, html string) {
 	// create a template cache
-	tc, err := createTemplateCache()
+	tc, err := CreateTemplateCache()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -35,14 +35,14 @@ func RenderTemplate(w http.ResponseWriter, html string) {
 	}
 }
 
-func createTemplateCache() (map[string]*template.Template, error) {
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	// myCache := make(map[string]*template.Template)
-	myCache := map[string]*template.Template{}
+	MyCache := map[string]*template.Template{}
 
 	// get all of the files named *.html from the ./templates
 	pages, err := filepath.Glob("./templates/*.page.html")
 	if err != nil {
-		return myCache, err
+		return MyCache, err
 	}
 
 	// range through all files ending with *.page.html
@@ -50,23 +50,23 @@ func createTemplateCache() (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 		ts, err := template.New(name).ParseFiles(page)
 		if err != nil {
-			return myCache, err
+			return MyCache, err
 		}
 
 		matches, err := filepath.Glob("./templates/*.layout.html")
 		if err != nil {
-			return myCache, err
+			return MyCache, err
 		}
 
 		if len(matches) > 0 {
 			ts, err = ts.ParseGlob("./templates/*.layout.html")
 			if err != nil {
-				return myCache, err
+				return MyCache, err
 			}
 
 		}
-		myCache[name] = ts
+		MyCache[name] = ts
 
 	}
-	return myCache, nil
+	return MyCache, nil
 }

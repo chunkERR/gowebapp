@@ -7,7 +7,7 @@ import (
 	"github.com/chunkERR/gowebapp/pkg/handlers"
 )
 
-const portNumber = ":8080"
+const portNumber = ":8090"
 
 func main() {
 	http.HandleFunc("/", handlers.Home)

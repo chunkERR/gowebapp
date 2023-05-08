@@ -25,7 +25,7 @@ func RenderTemplate(w http.ResponseWriter, html string) {
 
 	err = t.Execute(buf, nil)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 
 	//render the template

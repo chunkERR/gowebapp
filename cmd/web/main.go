@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/chunkERR/gowebapp/pkg/config"
 	"github.com/chunkERR/gowebapp/pkg/handlers"
@@ -14,19 +13,27 @@ import (
 const portNumber = ":8080"
 
 func main() {
-	fmt.Println(os.Getwd())
 	var app config.AppConfig
 
-	tc, err := render.CreateTemplateCache()
+	templateCache, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("Cannot create template cache")
 	}
 
-	app.MyCache = tc
+	app.MyCache = templateCache
+	app.UseCache = false
 
-	http.HandleFunc("/", handlers.Home)
-	http.HandleFunc("/about", handlers.About)
+	repo := handlers.NewRepo(&app)
+	handlers.NewHandlers(repo)
+
+	render.NewTemplates(&app)
 
 	fmt.Println(fmt.Sprintf("Starting app on port %s", portNumber))
-	fmt.Println(http.ListenAndServe(portNumber, nil))
+
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+	err = srv.ListenAndServe()
+	log.Fatal(err)
 }

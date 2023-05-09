@@ -6,23 +6,44 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/chunkERR/gowebapp/pkg/config"
+	"github.com/chunkERR/gowebapp/pkg/models"
 )
 
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
-	// create a template cache
-	templatecache, err := CreateTemplateCache()
-	if err != nil {
-		log.Println(err)
+var app *config.AppConfig
+
+// sets the config for the template package
+func NewTemplates(a *config.AppConfig) {
+	app = a
+}
+
+func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+	return td
+}
+
+func RenderTemplate(w http.ResponseWriter, tmpl string, templateData *models.TemplateData) {
+
+	var templatecache map[string]*template.Template
+
+	if app.UseCache {
+		// get the template cache from the app config
+		templatecache = app.MyCache
+
+	} else {
+		templatecache, _ = CreateTemplateCache()
 	}
 
-	// get requested template from cache
 	t, ok := templatecache[tmpl]
 	if !ok {
 		log.Printf("template not found: %s\n", tmpl)
 	}
 
 	buf := new(bytes.Buffer)
-	err = t.Execute(buf, nil)
+
+	templateData = AddDefaultData(templateData)
+
+	err := t.Execute(buf, templateData)
 	if err != nil {
 		log.Println(err)
 	}
